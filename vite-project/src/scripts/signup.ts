@@ -2,7 +2,6 @@ import { signup } from "../../apis/services/auth.service";
 import { errorHandler } from "../libs/error-handler";
 import { setSessionToken } from "../libs/session-manager";
 import { toast } from "../libs/toast";
-import { ISignupData } from "../types/main";
 
 const signupForm = document.getElementById("signup-form") as HTMLFormElement;
 const inputPassword = document.getElementById(
@@ -12,14 +11,13 @@ const inputUsername = document.getElementById(
   "inputUsername"
 ) as HTMLInputElement;
 
-
 signupForm.addEventListener("submit", async (e: SubmitEvent) => {
   e.preventDefault();
   const usernameValue: string = inputUsername.value;
   const passwordValue: string = inputPassword.value;
 
   try {
-    const response: ISignupData = await signup({
+    const response: IFormData = await signup({
       username: usernameValue,
       password: passwordValue,
     });

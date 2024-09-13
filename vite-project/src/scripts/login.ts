@@ -17,7 +17,7 @@ loginForm.addEventListener("submit", async (e) => {
   const passwordValue: string = inputPassword.value;
 
   try {
-    const response = await login({
+    const response: IFormData = await login({
       username: usernameValue,
       password: passwordValue,
     });

@@ -1,8 +1,8 @@
 import { removeSessionToken } from "./session-manager";
 import { toast } from "./toast";
 
-export const errorHandler = (error: any): void => {
-  const message = error.response?.data?.message;
+export const errorHandler = (error: IErrorHandler): void => {
+  const message: string[] = error.response?.data?.message;
 
   if (typeof message === "string") {
     toast(message);
