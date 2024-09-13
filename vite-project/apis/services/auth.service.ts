@@ -1,10 +1,6 @@
+import { IAuthData } from "../../src/types/main";
 import { httpClient } from "../client";
 import { urls } from "../urls";
-
-interface IAuthData {
-  username: string;
-  password: string;
-}
 
 export async function login(data: IAuthData) {
   const response = await httpClient().post(urls.auth.login, data);
