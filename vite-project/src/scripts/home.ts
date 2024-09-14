@@ -1,11 +1,11 @@
 import {
-  // getSneakerBrands,
+  getSneakerBrands,
   getSneakers,
 } from "../../apis/services/sneaker.service";
 import { getUser } from "../../apis/services/user.service";
 import { errorHandler } from "../libs/error-handler";
 import debounce from "lodash.debounce";
-// import { removeSessionToken } from "../libs/session-manager";
+import { getSessionToken, removeSessionToken } from "../libs/session-manager";
 import {
   IErrorHandler,
   IGetSneaker,
@@ -29,10 +29,10 @@ const bottomEls = document.getElementById("bottomEls") as HTMLDivElement;
 const theMost = document.getElementById("theMost") as HTMLDivElement;
 const notFoundEl = document.getElementById("notFoundEl") as HTMLDivElement;
 const scrollBar = document.querySelector(".scrollBar") as HTMLDivElement;
-// const logOut = document.getElementById("logOut");
+const logOut = document.getElementById("logOut") as HTMLAnchorElement;
 let totalPages: number;
 let curPage = 1;
-let selectedBrand: null = null;
+let selectedBrand: string | null = null;
 let currentSearchValue: string = "";
 
 async function get(): Promise<void> {
@@ -77,7 +77,6 @@ async function getProducts(
 
     const sneakersResponse: ISneakerResponse = await getSneakers(params);
     const sneakers: ISneakerList[] = sneakersResponse.data;
-    // console.log(sneakers);
 
     totalPages = sneakersResponse.totalPages;
 
@@ -186,3 +185,100 @@ function changePage(page: number) {
   curPage = page;
   getProducts(selectedBrand, curPage, currentSearchValue);
 }
+
+async function loadBrands(): Promise<void> {
+  try {
+    const brands: string[] = await getSneakerBrands();
+
+    const allBrandsEl: HTMLDivElement = document.createElement("div");
+    allBrandsEl.classList.add(
+      "bg-[#343A40]",
+      "rounded-3xl",
+      "text-white",
+      "w-full",
+      "text-[17px]",
+      "py-[4px]",
+      "px-[18px]",
+      "flex",
+      "justify-center",
+      "items-center",
+      "cursor-pointer"
+    );
+    allBrandsEl.innerText = "All";
+    allBrandsEl.addEventListener("click", () => {
+      if (selectedBrand !== null) {
+        selectedBrand = null;
+        getProducts();
+        brandClicked(allBrandsEl);
+      }
+    });
+    productBrands.append(allBrandsEl);
+
+    brands.forEach((brand: string) => {
+      const brandEl = document.createElement("div");
+      brandEl.classList.add(
+        "py-[4px]",
+        "px-[18px]",
+        "w-full",
+        "border-2",
+        "border-[#343A40]",
+        "rounded-3xl",
+        "flex",
+        "justify-center",
+        "items-center",
+        "whitespace-nowrap"
+      );
+      brandEl.innerHTML = brand;
+      brandEl.addEventListener("click", () => {
+        if (selectedBrand !== brand) {
+          selectedBrand = brand;
+          getProducts(brand);
+          brandClicked(brandEl);
+        }
+      });
+      productBrands.append(brandEl);
+    });
+  } catch (error) {
+    errorHandler(error as IErrorHandler);
+  }
+}
+
+function brandClicked(selectedBrandEl: HTMLDivElement) {
+  selectedBrand =
+    selectedBrandEl.innerText === "All" ? null : selectedBrandEl.innerText;
+
+  const allBrandEls: NodeListOf<HTMLDivElement> =
+    productBrands.querySelectorAll("div");
+  allBrandEls.forEach((brandEl: HTMLDivElement) => {
+    brandEl.classList.remove("bg-[#343A40]", "text-white");
+    brandEl.classList.add("border-2", "border-[#343A40]", "text-[#343A40]");
+  });
+
+  selectedBrandEl.classList.add(
+    "bg-[#343A40]",
+    "text-white",
+    "py-[4px]",
+    "px-[18px]"
+  );
+  selectedBrandEl.classList.remove(
+    "border-2",
+    "border-[#343A40]",
+    "text-[#343A40]"
+  );
+}
+
+loadBrands();
+
+logOut.addEventListener("click", (e: MouseEvent) => {
+  e.preventDefault();
+  removeSessionToken();
+  window.location.href = "./login";
+});
+
+function authGuard() {
+  const token = getSessionToken();
+  if (!token) {
+    window.location.href = "./login";
+  }
+}
+authGuard();
