@@ -1,9 +1,9 @@
 import { httpClient } from "../client";
 import { urls } from "../urls";
-import { IParams, ISneakerList } from "../../src/types/main";
+import { IParams, ISneakerList, ISneakerResponse } from "../../src/types/main";
 
-export async function getSneakers(params: IParams): Promise<ISneakerList> {
-  const response = await httpClient().get<ISneakerList>(urls.sneaker.list, {
+export async function getSneakers(params: IParams): Promise<ISneakerResponse> {
+  const response = await httpClient().get<ISneakerResponse>(urls.sneaker.list, {
     params: {
       page: params.page,
       limit: params.limit,
@@ -11,7 +11,7 @@ export async function getSneakers(params: IParams): Promise<ISneakerList> {
       search: params.search,
     },
   });
-  console.log(response.data);
+  // console.log(response.data);
 
   return response.data;
 }

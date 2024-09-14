@@ -2,6 +2,7 @@ import { signup } from "../../apis/services/auth.service";
 import { errorHandler } from "../libs/error-handler";
 import { setSessionToken } from "../libs/session-manager";
 import { toast } from "../libs/toast";
+import { IErrorHandler, IFormData } from "../types/main";
 
 const signupForm = document.getElementById("signup-form") as HTMLFormElement;
 const inputPassword = document.getElementById(
@@ -29,6 +30,6 @@ signupForm.addEventListener("submit", async (e: SubmitEvent) => {
       window.location.href = "/home";
     }, 3000);
   } catch (error) {
-    errorHandler(error);
+    errorHandler(error as IErrorHandler);
   }
 });

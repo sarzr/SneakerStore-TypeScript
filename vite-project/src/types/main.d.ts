@@ -42,7 +42,7 @@ export interface IGetUser {
 export interface IParams {
   page: number;
   limit: number;
-  brands: string;
+  brands?: string;
   search: string;
 }
 
@@ -57,4 +57,19 @@ export interface ISneakerList {
   category: string;
   gender: string;
   brand: string;
+}
+
+export interface ISneakerResponse {
+  data: ISneakerList[];
+  page: number;
+  perPage: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface IGetSneaker {
+  page: number;
+  limit: number;
+  search: string;
+  brands?: string;
 }
