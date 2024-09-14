@@ -4,7 +4,7 @@ import {
 } from "../../apis/services/sneaker.service";
 import { getUser } from "../../apis/services/user.service";
 import { errorHandler } from "../libs/error-handler";
-// import debounce from "lodash.debounce";
+import debounce from "lodash.debounce";
 // import { removeSessionToken } from "../libs/session-manager";
 import {
   IErrorHandler,
@@ -22,8 +22,8 @@ const productBrands = document.getElementById(
 ) as HTMLDivElement;
 const username = document.getElementById("username") as HTMLHeadingElement;
 const greeting = document.getElementById("greeting") as HTMLSpanElement;
-// const pages = document.getElementById("page");
-// const searchInput = document.getElementById("searchInput");
+const pages = document.getElementById("page") as HTMLSpanElement;
+const searchInput = document.getElementById("searchInput") as HTMLInputElement;
 const paginations = document.getElementById("paginations") as HTMLDivElement;
 const bottomEls = document.getElementById("bottomEls") as HTMLDivElement;
 const theMost = document.getElementById("theMost") as HTMLDivElement;
@@ -31,7 +31,7 @@ const notFoundEl = document.getElementById("notFoundEl") as HTMLDivElement;
 const scrollBar = document.querySelector(".scrollBar") as HTMLDivElement;
 // const logOut = document.getElementById("logOut");
 let totalPages: number;
-// let curPage = 1;
+let curPage = 1;
 let selectedBrand: null = null;
 let currentSearchValue: string = "";
 
@@ -94,7 +94,7 @@ async function getProducts(
         });
         productsEl.append(product);
       });
-      // pagination(page, totalPages);
+      pagination(page, totalPages);
       elementStyles(true);
     }
   } catch (error) {
@@ -121,7 +121,7 @@ function renderSneakers(sneaker: ISneakerList) {
 }
 
 function notFoundSneaker(searchValue: string) {
-  const notFound = document.createElement("div");
+  const notFound: HTMLDivElement = document.createElement("div");
   notFound.innerHTML = `
     <div class="flex justify-between items-baseline mt-6">
       <h2 class="font-bold text-[20px]">Results for "${searchValue}"</h2>
@@ -142,7 +142,7 @@ function notFoundSneaker(searchValue: string) {
 }
 
 function elementStyles(show: boolean) {
-  const display = show ? "flex" : "none";
+  const display: string = show ? "flex" : "none";
   paginations.style.display = display;
   bottomEls.style.display = display;
   productsEl.style.display = show ? "grid" : "none";
@@ -150,4 +150,39 @@ function elementStyles(show: boolean) {
   theMost.style.display = display;
   scrollBar.style.display = show ? "block" : "none";
   notFoundEl.style.display = show ? "none" : "block";
+}
+
+function searching(searchValue: string) {
+  curPage = 1;
+  getProducts(selectedBrand, curPage, searchValue);
+  pagination(curPage, totalPages);
+}
+
+searchInput.addEventListener(
+  "keyup",
+  debounce((event) => {
+    const searchValue: string = event.target.value.trim();
+    currentSearchValue = searchValue;
+    searching(searchValue);
+  }, 3000)
+);
+
+function pagination(page: number, totalPages: number) {
+  pages.innerHTML = "";
+
+  const startPage: number = 1;
+
+  for (let i = startPage; i <= totalPages; i++) {
+    const pageSpan: HTMLSpanElement = document.createElement("span");
+    pageSpan.innerText = i.toString();
+    pageSpan.className = `px-3 py-1 rounded-md ${
+      i === page ? "bg-black text-white active" : "bg-gray-200"
+    }`;
+    pageSpan.addEventListener("click", () => changePage(i));
+    pages.append(pageSpan);
+  }
+}
+function changePage(page: number) {
+  curPage = page;
+  getProducts(selectedBrand, curPage, currentSearchValue);
 }
